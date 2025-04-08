@@ -20,6 +20,7 @@ app.post("/upload", async (req, res) => {
 
   // Vérification si un fichier est bien envoyé
   if (!req.files || !req.files.file) {
+    console.log("est passé dans le if");
     return res.status(400).send("Aucun fichier reçu");
   }
 
