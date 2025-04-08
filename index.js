@@ -18,13 +18,15 @@ app.post("/upload", async (req, res) => {
   const sftp = new SftpClient();
   try {
     await sftp.connect({
-      host: "sftp.monserveur.com",
-      port: 22,
-      username: "utilisateur",
-      password: "motdepasse",
-    });
-
-    await sftp.put(tmpPath, `/chemin/distant/${file.name}`);
+        host: process.env.SFTP_HOST,
+        port: process.env.SFTP_PORT,
+        username: process.env.SFTP_USER,
+        password: process.env.SFTP_PASS,
+      });
+      console.log("Debug 1");
+      await sftp.put(tmpPath, process.env.SFTP_DEST_PATH + file.name);
+      console.log("Debug 2");
+      
     await sftp.end();
 
     fs.unlinkSync(tmpPath);
