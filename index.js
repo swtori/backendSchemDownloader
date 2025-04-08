@@ -5,17 +5,29 @@ const fs = require("fs");
 console.log("STARTING!");
 
 const app = express();
+
+console.log("1");
+
+
 app.use(fileUpload());
+
+console.log("2!");
 
 app.post("/upload", async (req, res) => {
   if (!req.files || !req.files.file) {
     return res.status(400).send("Aucun fichier reçu");
   }
+  console.log("3!");
 
   const file = req.files.file;
+  console.log("3!");
+
   const tmpPath = `./${file.name}`;
+  console.log("4!");
   await file.mv(tmpPath);
-  console.log("Debug 1");
+  console.log("5!");
+
+
 
   const sftp = new SftpClient();
   try {
