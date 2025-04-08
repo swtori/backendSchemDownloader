@@ -2,6 +2,7 @@ const express = require("express");
 const fileUpload = require("express-fileupload");
 const SftpClient = require("ssh2-sftp-client");
 const fs = require("fs");
+console.log("STARTING!");
 
 const app = express();
 app.use(fileUpload());
@@ -14,6 +15,7 @@ app.post("/upload", async (req, res) => {
   const file = req.files.file;
   const tmpPath = `./${file.name}`;
   await file.mv(tmpPath);
+  console.log("Debug 1");
 
   const sftp = new SftpClient();
   try {
@@ -23,9 +25,9 @@ app.post("/upload", async (req, res) => {
         username: process.env.SFTP_USER,
         password: process.env.SFTP_PASS,
       });
-      console.log("Debug 1");
-      await sftp.put(tmpPath, process.env.SFTP_DEST_PATH + file.name);
       console.log("Debug 2");
+      await sftp.put(tmpPath, process.env.SFTP_DEST_PATH + file.name);
+      console.log("Debug 3");
       
     await sftp.end();
 
