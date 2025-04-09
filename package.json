@@ -1,14 +1,8 @@
 {
-    "name": "sftp-uploader",
-    "main": "index.js",
-    "scripts": {
-      "start": "node index.js"
-    },
-    "dependencies": {
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "express-fileupload": "^1.2.1",
-    "ssh2-sftp-client": "^5.0.0",
-    "fs": "0.0.1-security"
-    }
+  "dependencies": {
+      "express": "^4.17.1",
+      "multer": "^1.4.2",
+      "ssh2-sftp-client": "^7.0.0",
+      "cors": "^2.8.5"
+  }
 }
