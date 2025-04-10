@@ -18,8 +18,8 @@ const upload = multer({
 const sftpConfig = {
     host: process.env.SFTP_HOST,
     port: process.env.SFTP_PORT || 22,
-    username: process.env.SFTP_USERNAME,
-    password: process.env.SFTP_PASSWORD
+    username: process.env.SFTP_USER,
+    password: process.env.SFTP_PASS
 };
 
 app.post('/upload', (req, res) => {
