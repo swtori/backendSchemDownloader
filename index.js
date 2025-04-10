@@ -7,7 +7,12 @@ const cors = require('cors');
 const app = express();
 app.use(cors()); // Permet les requêtes cross-origin
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({
+    dest: 'uploads/',
+    limits: {
+        fileSize: 10 * 1024 * 1024 // limite à 10MB par exemple
+    }
+}).array('schematics', 10); // 10 fichiers maximum
 
 // Configuration SFTP
 const sftpConfig = {
@@ -17,23 +22,38 @@ const sftpConfig = {
     password: process.env.SFTP_PASSWORD
 };
 
-app.post('/upload', upload.array('schematics'), async (req, res) => {
-    const sftp = new Client();
-    
-    try {
-        await sftp.connect(sftpConfig);
-        
-        for(let file of req.files) {
-            const remotePath = `/schematics/${file.originalname}`;
-            await sftp.put(file.path, remotePath);
+app.post('/upload', (req, res) => {
+    upload(req, res, function(err) {
+        if (err instanceof multer.MulterError) {
+            console.error('Erreur Multer:', err);
+            return res.status(400).json({ message: `Erreur d'upload: ${err.message}` });
+        } else if (err) {
+            console.error('Erreur inconnue:', err);
+            return res.status(500).json({ message: `Erreur serveur: ${err.message}` });
         }
         
-        await sftp.end();
-        res.json({ message: 'Schématiques uploadées avec succès!' });
-    } catch (error) {
-        console.error('Erreur SFTP:', error);
-        res.status(500).json({ message: 'Erreur lors du transfert SFTP' });
-    }
+        // Si pas d'erreur, continuer avec le traitement SFTP
+        const sftp = new Client();
+        sftp.connect(sftpConfig)
+            .then(() => {
+                const uploadPromises = req.files.map(file => {
+                    const remotePath = `${process.env.SFTP_DEST_PATH}/${file.originalname}`;
+                    return sftp.put(file.path, remotePath);
+                });
+                
+                return Promise.all(uploadPromises);
+            })
+            .then(() => {
+                return sftp.end();
+            })
+            .then(() => {
+                res.json({ message: 'Schématiques uploadées avec succès!' });
+            })
+            .catch(error => {
+                console.error('Erreur SFTP:', error);
+                res.status(500).json({ message: 'Erreur lors du transfert SFTP: ' + error.message });
+            });
+    });
 });
 
 const PORT = process.env.PORT || 3000;
